@@ -13,12 +13,20 @@ int main(int argc, char** argv) {
     }
 
     char cmd[BUFSIZE];
+    char* file_address = strdup(argv[1]);
 
-    snprintf(cmd, BUFSIZE, "wc -c \"%s\"", argv[1]);
+    int limit_size = BUFSIZE - strlen("wc -c ");
+
+    if(strlen(file_address) > limit_size){
+        fprintf(stderr, "The file address value is too long.\n");
+        return -1;
+    }
+
+    snprintf(cmd, BUFSIZE, "wc -c \"%s\"", file_address);
 
     FILE* pipe = popen(cmd, "r");
     if (!pipe) {
-        perror("popen failed");
+        perror("Error opening pipe");
         return -1;
     }
 
@@ -27,8 +35,8 @@ int main(int argc, char** argv) {
         printf("%s", result);
     } else {
         fprintf(stderr, "Error: Could not retrieve the file size.\n");
+        return -1;
     }
 
     pclose(pipe);
-    return 0;
 }
