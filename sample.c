@@ -12,7 +12,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    char cmd[BUFSIZE];
     char* file_address = strdup(argv[1]);
 
     int limit_size = BUFSIZE - strlen("wc -c ");
@@ -22,21 +21,11 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    snprintf(cmd, BUFSIZE, "wc -c \"%s\"", file_address);
+    // Using execvp instead of popen
+    char *cmd[] = {"wc", "-c", file_address, NULL};
+    execvp(cmd[0], cmd);
 
-    FILE* pipe = popen(cmd, "r");
-    if (!pipe) {
-        perror("Error opening pipe");
-        return -1;
-    }
-
-    char result[BUFSIZE];
-    if (fgets(result, sizeof(result), pipe) != NULL) {
-        printf("%s", result);
-    } else {
-        fprintf(stderr, "Error: Could not retrieve the file size.\n");
-        return -1;
-    }
-
-    pclose(pipe);
+    // If execvp fails, print error and return
+    perror("execvp failed");
+    return -1;
 }
